@@ -5,10 +5,12 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine, get_db
 from models import Patient
 from schemas import PatientCreate, PatientUpdate, PatientOut
+
 
 # Logging setup — satisfies the "log agent conversations / final
 # data payload to stdout" observability requirement
@@ -20,6 +22,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Patient Registration API")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],       # allow requests from any origin, including Vapi's servers
+    allow_credentials=True,
+    allow_methods=["*"],       # allow all HTTP methods, including OPTIONS preflight
+    allow_headers=["*"],
+)
 
 def envelope(data=None, error=None):
     """Wraps every response in the required { data, error } shape."""
